@@ -365,7 +365,7 @@ show_summary() {
 
         local base_script="$SCRIPT_DIR/units/base.sh"
 
-	log_warn "IMPORTANT: Review the following before disconnecting:"
+        log_warn "IMPORTANT: Review the following before disconnecting:"
         log_info "  1. SSH is now on port $SSH_PORT"
         log_info "  2. Password authentication is disabled"
         log_info "  3. Root login is disabled"

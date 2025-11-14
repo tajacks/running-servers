@@ -308,20 +308,11 @@ maxretry = 5
 configure_firewall() {
     log_info "Configuring UFW firewall"
 
-    # Check if already configured
-    if ufw status | grep -q "Status: active"; then
-        log_info "Firewall already active, verifying rules..."
-    else
-        log_info "Initializing firewall"
-        # Reset to defaults
-        yes | ufw --force reset > /dev/null
-    fi
-
-    # Set default policies
+    # Set default policies first (safe even if firewall is active)
     ufw default deny incoming
     ufw default allow outgoing
 
-    # Allow SSH on custom port
+    # Allow SSH on custom port (add rule before enabling to prevent lockout)
     if ! ufw status | grep -q "$SSH_PORT/tcp"; then
         log_info "Allowing SSH on port $SSH_PORT"
         ufw allow "$SSH_PORT/tcp" comment 'SSH'
@@ -338,10 +329,14 @@ configure_firewall() {
         ufw allow 443/tcp comment 'HTTPS'
     fi
 
-    # Enable firewall
+    # Enable firewall only after all rules are added
     if ! ufw status | grep -q "Status: active"; then
-        log_info "Enabling UFW firewall"
+        log_info "Enabling UFW firewall with rules in place"
         yes | ufw --force enable > /dev/null
+    else
+        log_info "Firewall already active, rules updated"
+        # Reload to apply any new rules
+        ufw reload > /dev/null
     fi
 
     log_info "Firewall configuration complete"
