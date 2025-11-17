@@ -32,7 +32,7 @@ enough value. Setting up a new server manually takes ~30 minutes if you're decen
 setting up the server helps improve...) and I have found little to match the familiarity you build with your
 infrastructure when you configure it manually.
 
-I think of it like a construction project. If you were to do a small to medium sized home renovation, it's likely worth learning the skills to do much of the work yourself. You save money, learn new things, and know exactly what's going on behind those walls. If you outsource the work, you declare the end state you wish to receive and the builder (automation tool in this analogy) makes it so. While this works great for large projects, for small personal projects the overhead of managing the builder, communicating requirements, and trusting work you didn't see happen can outweigh the time saved. Similarly, declarative automation tools require investment in learning their syntax and maintaining their configurations—time that may exceed the 30 minutes of manual work they replace, especially when you only provision a server every few years.
+I think of it like a construction project. If you were to do a small to medium sized home renovation, it's likely worth learning the skills to do much of the work yourself. You save money, learn new things, and know exactly what's going on behind those walls. If you outsource the work, you declare the end state you wish to receive and the builder (automation tool in this analogy) makes it so. While this works great for large projects, for small personal projects the overhead of managing the builder, communicating requirements, and trusting work you didn't see happen can outweigh the time saved. Similarly, declarative automation tools require investment in learning their syntax and maintaining their configurations — time that may exceed the 30 minutes of manual work they replace, especially when you only provision a server every few years.
 
 This philosophy works where ultimately the stakes and volume of work is low. If I had to run a business to support my livelihood, or provision tens to hundreds of servers, an alternative would be necessary.
 
@@ -458,7 +458,7 @@ chown -R "$APP_USER:$APP_USER" "/home/$APP_USER/.local"
 Validate the Podman installation by running a test container as the application user. Use `machinectl` to start a clean login shell as the application user with proper systemd user session initialization, which is required for rootless Podman to function correctly:
 
 ```
-machinectl shell "$APP_USER@"
+sudo machinectl shell "$APP_USER@"
 ```
 
 Once in the application user's shell, run a hello-world container:
@@ -507,6 +507,216 @@ Finally, ensure the `root` account doesn't contain any SSH keys in its authorize
 ```
 sudo rm /root/.ssh/authorized_keys
 ```
+
+### Install Caddy
+
+Caddy is a modern web server with automatic HTTPS via Let's Encrypt. It will run as a Podman container, reverse proxy to internal services, and serve static content. All Caddy setup is performed as the application user. Switch to the application user:
+
+```
+machinectl shell "$APP_USER@"
+```
+
+Once in the application user's shell, create the directory structure:
+
+```
+mkdir -p ~/caddy/data
+mkdir -p ~/caddy/config
+mkdir -p ~/www
+mkdir -p ~/.config/containers/systemd
+chmod 700 ~/caddy/data
+chmod 700 ~/caddy/config
+```
+
+The directory structure serves the following purposes:
+- `~/caddy/Caddyfile`: Main Caddy configuration
+- `~/caddy/data/`: Persistent storage for TLS certificates
+- `~/caddy/config/`: Caddy's configuration cache
+- `~/www/`: Static content served by Caddy
+
+Create a basic Caddyfile template:
+
+```
+echo '{
+    # Global options
+    admin off
+    persist_config off
+}
+
+# Example static site
+# example.com {
+#     root * /srv/www
+#     file_server
+# }
+
+# Example reverse proxy to a backend container
+# app.example.com {
+#     reverse_proxy my-app-container:8080
+# }' > ~/caddy/Caddyfile
+```
+
+The Caddyfile uses a simple, intuitive syntax. Edit this file directly when adding or modifying services.
+
+Create a Podman Quadlet file that defines the Caddy container:
+
+```
+echo '[Unit]
+Description=Caddy Web Server Container
+After=network-online.target
+Wants=network-online.target
+
+[Container]
+Image=docker.io/library/caddy:latest
+ContainerName=caddy
+Network=app-network
+PublishPort=80:80
+PublishPort=443:443
+Volume=%h/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+Volume=%h/caddy/data:/data
+Volume=%h/caddy/config:/config
+Volume=%h/www:/srv/www:ro
+AutoUpdate=registry
+
+[Service]
+Restart=always
+RestartSec=10
+TimeoutStartSec=900
+
+[Install]
+WantedBy=default.target' > ~/.config/containers/systemd/caddy.container
+```
+
+The `[Container]` section uses Podman-specific options. The `%h` specifier automatically expands to the user's home directory. Quadlet automatically generates the corresponding systemd service file.
+
+Create the Podman network and start Caddy:
+
+```
+podman network create app-network
+systemctl --user daemon-reload
+systemctl --user start caddy.service
+systemctl --user status caddy.service
+exit
+```
+
+You should see the Caddy service as `active (running)` and the `caddy` container running with ports 80 and 443 published.
+
+#### Adding Backend Services
+
+To add a backend service, switch to the application user:
+
+```
+machinectl shell "$APP_USER@"
+```
+
+Once in the application user's shell, run your application container on the `app-network`:
+
+```
+podman run -d \
+    --name my-app \
+    --network app-network \
+    your-image:latest
+```
+
+Note that backend containers should **not** publish ports to the host - Caddy routes to them internally via container name and port.
+
+Edit the Caddyfile to add a reverse proxy configuration:
+
+```
+vim ~/caddy/Caddyfile
+```
+
+Add a block like this:
+
+```
+app.example.com {
+    reverse_proxy my-app:8080
+}
+```
+
+Reload Caddy to apply the changes:
+
+```
+systemctl --user restart caddy.service
+exit
+```
+
+Caddy will automatically obtain and renew TLS certificates from Let's Encrypt for configured domains.
+
+#### Serving Static Content
+
+Static content is organized into subdirectories under `~/www/`, with each directory mapped to a domain. Create a file browser directory and a demo static site to test. Switch to the application user if not already:
+
+```
+machinectl shell "$APP_USER@"
+```
+
+Once in the application user's shell:
+
+```
+mkdir -p ~/www/files
+mkdir -p ~/www/demo
+
+echo '<html>
+<head><title>Demo Site</title></head>
+<body>
+<h1>Hello from Caddy!</h1>
+<p>This is a static site served by Caddy.</p>
+</body>
+</html>' > ~/www/demo/index.html
+
+echo 'Welcome to the file browser!
+Place files here to share them.' > ~/www/files/README.txt
+```
+
+Edit the Caddyfile to add static site configurations:
+
+```
+vim ~/caddy/Caddyfile
+```
+
+Add blocks for your static sites. Use `file_server browse` for directories where you want a file browser, and `file_server` alone for regular static sites:
+
+```
+# File browser for sharing files
+files.example.com {
+    root * /srv/www/files
+    file_server browse
+}
+
+# Static website
+demo.example.com {
+    root * /srv/www/demo
+    file_server
+}
+```
+
+The `/srv/www/` path refers to the mounted volume inside the container. Subdirectories map to `~/www/files`, `~/www/demo`, etc. on the host.
+
+Reload Caddy to apply changes:
+
+```
+systemctl --user restart caddy.service
+exit
+```
+
+After configuring DNS records to point your domains to the server, Caddy will automatically obtain TLS certificates and serve your sites.
+
+#### Updating the Caddy Container
+
+To update Caddy to the latest version, switch to the application user:
+
+```
+machinectl shell "$APP_USER@"
+```
+
+Once in the application user's shell:
+
+```
+podman pull docker.io/library/caddy:latest
+systemctl --user restart caddy.service
+exit
+```
+
+The service will automatically use the new image on restart.
 
 ## Maintenance
 
