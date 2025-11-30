@@ -1,0 +1,12 @@
+{
+  "title": "Running Servers",
+  "subtitle": "A comprehensive guide to setting up and running hobby servers",
+  "url": "https://servers.thomasjack.ca",
+  "author": {
+    "name": "Thomas Jack",
+    "email": "tom@tomjack.ca",
+    "github": "https://github.com/tajacks"
+  },
+  "license": "CC BY-NC-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+}
