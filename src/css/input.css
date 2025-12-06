@@ -23,7 +23,8 @@ body {
   font-size: 20px;
   line-height: 1.75;
   letter-spacing: 0.01em;
-  margin: 0;
+  max-width: 850px;
+  margin: 0 auto;
   padding: 0;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -208,76 +209,6 @@ footer {
   opacity: 0.5;
 }
 
-/* Typography Components */
-
-/* Callouts */
-.callout {
-  margin: 2rem 0;
-  padding: 1.25rem 1.5rem;
-  border-left: 4px solid;
-  background: var(--color-surface);
-  font-family: var(--font-serif);
-}
-
-.callout strong {
-  display: block;
-  font-family: var(--font-sans);
-  font-size: 0.875rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 0.5rem;
-}
-
-.callout-info {
-  border-left-color: #4a6fa5;
-  background: rgba(74, 111, 165, 0.05);
-}
-
-.callout-info strong {
-  color: #4a6fa5;
-}
-
-.callout-warning {
-  border-left-color: #c97a3a;
-  background: rgba(201, 122, 58, 0.05);
-}
-
-.callout-warning strong {
-  color: #c97a3a;
-}
-
-.callout-tip {
-  border-left-color: var(--color-accent);
-  background: rgba(139, 58, 58, 0.05);
-}
-
-.callout-tip strong {
-  color: var(--color-accent);
-}
-
-/* Pull Quote */
-.pullquote {
-  margin: 2.5rem 0;
-  padding: 2rem 3rem;
-  text-align: center;
-  font-family: var(--font-serif);
-  font-size: 1.375rem;
-  font-style: italic;
-  color: var(--color-accent);
-  line-height: 1.6;
-  position: relative;
-}
-
-.pullquote::before {
-  content: '\201C';
-  position: absolute;
-  top: 0;
-  left: 1rem;
-  font-size: 4rem;
-  color: var(--color-surface);
-  line-height: 1;
-}
-
 /* Block Quote Enhancement */
 .chapter-content blockquote {
   margin: 2rem 0;
@@ -286,49 +217,6 @@ footer {
   font-style: italic;
   color: var(--color-text-secondary);
   background: rgba(0, 0, 0, 0.02);
-}
-
-/* Side Note */
-.sidenote {
-  margin: 1.5rem 0;
-  padding: 1rem 1.25rem;
-  background: rgba(0, 0, 0, 0.02);
-  border-left: 2px solid var(--color-text-secondary);
-  font-size: 0.9rem;
-  color: var(--color-text-secondary);
-}
-
-.sidenote strong {
-  color: var(--color-text-primary);
-}
-
-/* Definition List */
-.definition-list {
-  margin: 2rem 0;
-}
-
-.definition-list dt {
-  font-family: var(--font-sans);
-  font-weight: 600;
-  color: var(--color-accent);
-  margin-top: 1.5rem;
-  margin-bottom: 0.5rem;
-}
-
-.definition-list dt:first-child {
-  margin-top: 0;
-}
-
-.definition-list dd {
-  margin-left: 1.5rem;
-  margin-bottom: 0;
-  line-height: 1.6;
-}
-
-/* Small Caps */
-.small-caps {
-  font-variant: small-caps;
-  letter-spacing: 0.05em;
 }
 
 /* Keyboard Shortcuts */
@@ -354,74 +242,6 @@ footer {
   padding: 0.1em 0.3em;
 }
 
-/* Key Takeaway Box */
-.key-takeaway {
-  margin: 2.5rem 0;
-  padding: 1.5rem 2rem;
-  background: var(--color-surface);
-  border: 2px solid var(--color-accent);
-  font-family: var(--font-serif);
-}
-
-.key-takeaway strong {
-  font-family: var(--font-sans);
-  color: var(--color-accent);
-  font-size: 1rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-/* Command Example */
-.command-example {
-  margin: 1.5rem 0;
-  padding: 1rem 1.5rem;
-  background: var(--color-surface);
-  border-left: 3px solid var(--color-accent);
-}
-
-.command-label {
-  font-family: var(--font-sans);
-  font-size: 0.875rem;
-  color: var(--color-text-secondary);
-  margin-bottom: 0.5rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.command-example code {
-  font-family: var(--font-mono);
-  font-size: 1rem;
-  background: transparent;
-  padding: 0;
-  color: var(--color-text-primary);
-}
-
-/* Code File */
-.code-file {
-  margin: 2rem 0;
-  border: 1px solid #dee2e6;
-}
-
-.code-file-name {
-  font-family: var(--font-mono);
-  font-size: 0.875rem;
-  padding: 0.5rem 1rem;
-  background: var(--color-surface);
-  border-bottom: 1px solid #dee2e6;
-  color: var(--color-accent);
-  font-weight: 500;
-}
-
-.code-file pre {
-  margin: 0 !important;
-  border-left: none !important;
-  border-radius: 0;
-}
-
-.code-file pre code {
-  display: block;
-}
-
 footer p {
   margin: 0.5rem 0;
 }
@@ -436,9 +256,7 @@ footer a:hover {
 }
 
 /* Chapter content layout */
-.chapter-content {
-  max-width: 850px;
-  margin: 0 auto;
+.chapter-wrapper {
   padding: 4rem 2rem;
 }
 
@@ -485,16 +303,8 @@ footer a:hover {
 }
 
 .chapter-content p {
-  margin: 0;
-  text-indent: 1.5em;
+  margin: 1rem 0;
   line-height: 1.75;
-}
-
-.chapter-content p:first-of-type,
-.chapter-content h1 + p,
-.chapter-content h2 + p,
-.chapter-content h3 + p {
-  text-indent: 0;
 }
 
 .chapter-content ul,
@@ -577,7 +387,7 @@ footer a:hover {
     font-size: 2rem;
   }
 
-  .chapter-content {
+  .chapter-wrapper {
     padding: 3rem 1.5rem;
   }
 
