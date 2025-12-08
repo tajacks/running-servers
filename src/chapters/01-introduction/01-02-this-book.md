@@ -9,47 +9,70 @@ sectionNumber: 2
 
 ## Typography
 
-This book uses some consistent text elements to draw attention to notable content and distinguish input from output. It is important to get familiar with the concepts below.
+This book uses consistent text elements to draw attention to notable content and distinguish input from output. They also just look great. Take a moment to familiarize yourself with the following flourishes you'll see throughout the book.
 
 ### Shell Commands
 
-Shell commands appear in a code block with a title in the top left indicating they are to be run on a system. Like this:
+Shell commands appear in a code block with a title in the top left indicating they are to be run. They appear like this:
 
 {% command %}
 echo "Hello, world!"
 {% endcommand %}
 
-Not every command may be run on the server. You may need to execute an `ssh` or `curl` command from your local machine. Chapter context will make it clear where you need to execute the command but there will not be a visual difference.
+There's a button you can use to copy the command to your clipboard, if you have JavaScript enabled.
 
 ### File Editing
 
-File content appears in a box similar to shell commands. The difference is that the title of the box is the file path, styled as lowercase mono-space font.
-
-The surrounding chapter context will make it clear how you must manipulate the file. It may say something like the following, telling you to replace the content in full:
-
-_"Replace the entire content of the `hello.txt` file with the following content"_
+File content appears in a box similar to shell commands. The difference is that the title of the box is the file path, styled as lowercase monospace font. This box type also has a copy button.
 
 {% codefile "/tmp/greeting.txt" %}
 Hello, world!
 {% endcodefile %}
 
-It may also tell you to edit the file, keeping in mind to replace some variables:
+It will be clear if the file is meant to be replaced entirely, partially edited, or something else.
 
-_"Edit the `security_file` to include your user"_
+### Callouts
 
+Callouts draw attention to important information. There are three types:
 
-{% codefile "/etc/security_file" %}
-PermittedUsers admin, $YOUR_USER # Replace $YOUR_USER with your user
-{% endcodefile %}
+{% callout "warning", "Warning" %}
+Warning callouts highlight security concerns or actions that could cause data loss if performed incorrectly.
+{% endcallout %}
 
-Or maybe even highlighting that only a subsection of the content must be edited:
+{% callout "info", "Note" %}
+Info callouts provide additional context or clarify system requirements.
+{% endcallout %}
 
-_"Navigate to the HorizontalScaleConfigurer stanza and add the name of your service"_
+{% callout "tip", "Pro Tip" %}
+Tip callouts share best practices or shortcuts that experienced administrators use.
+{% endcallout %}
 
-{% codefile "/var/service_config.yaml" %}
-HorizontalScaleConfigurer:
- - existing-service
- - new-service # Add your new service
-{% endcodefile %}
+### Sidenotes
 
-Similar to the shell commands, it should be obvious what is required to be done.
+Sidenotes contain any content that I felt didn't fit into a themed callout from above. They're flexible.
+
+{% sidenote %}
+Sidenotes provide supplementary information that is helpful but not essential to the main content.
+{% endsidenote %}
+
+{% sidenote "Historical Context" %}
+Some sidenotes include a label to indicate their purpose.
+{% endsidenote %}
+
+### Key Takeaways
+
+{% keytakeaway %}
+Key takeaway boxes highlight the most important points from a section.
+{% endkeytakeaway %}
+
+### Pullquotes
+
+{% pullquote %}
+Pullquotes emphasize memorable statements or guiding principles. I don't use them much because they're a bit over the top.
+
+\-The author
+{% endpullquote %}
+
+### Inline Highlights
+
+When important terms or values appear within a sentence, they may be {% hl %}highlighted{% endhl %} to draw attention. This is used sparingly for {% hl %}critical configuration values{% endhl %} or key terminology.

@@ -13,5 +13,23 @@
     <span>This content is not ready for distribution</span>
   </div>
   {% block content %}{% endblock %}
+  <script>
+    document.addEventListener('click', function(e) {
+      const btn = e.target.closest('.copy-btn');
+      if (btn) {
+        const content = btn.getAttribute('data-content');
+        const icon = btn.getAttribute('data-icon');
+        const check = btn.getAttribute('data-check');
+        navigator.clipboard.writeText(content).then(function() {
+          btn.innerHTML = check;
+          btn.classList.add('copied');
+          setTimeout(function() {
+            btn.innerHTML = icon;
+            btn.classList.remove('copied');
+          }, 2000);
+        });
+      }
+    });
+  </script>
 </body>
 </html>
