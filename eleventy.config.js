@@ -114,6 +114,49 @@ ${attributionHtml}
     return `<mark class="text-highlight">${trimmedContent}</mark>`;
   });
 
+  // Term list shortcode - table of technical terms
+  // Usage: {% termlist "Optional Title" %}
+  // term1: description of term1
+  // term2: description of term2
+  // {% endtermlist %}
+  eleventyConfig.addPairedShortcode("termlist", function(content, title = "") {
+    const lines = content.trim().split('\n').filter(line => line.trim());
+
+    const rows = lines.map(line => {
+      const trimmed = line.trim();
+      const colonIndex = trimmed.indexOf(':');
+
+      if (colonIndex > 0) {
+        const term = trimmed.substring(0, colonIndex).trim();
+        const description = trimmed.substring(colonIndex + 1).trim();
+        const escapedTerm = he.encode(term);
+        const renderedDesc = md.renderInline(description);
+        return `<tr>
+<td class="termlist-term">${escapedTerm}</td>
+<td class="termlist-desc">${renderedDesc}</td>
+</tr>`;
+      } else {
+        const escapedTerm = he.encode(trimmed);
+        return `<tr>
+<td class="termlist-term">${escapedTerm}</td>
+<td class="termlist-desc"></td>
+</tr>`;
+      }
+    });
+
+    const escapedTitle = title ? he.encode(title) : "";
+    const captionHtml = escapedTitle
+      ? `<caption class="termlist-caption">${escapedTitle}</caption>`
+      : "";
+
+    return `<table class="termlist">
+${captionHtml}
+<tbody>
+${rows.join('\n')}
+</tbody>
+</table>`;
+  });
+
 
   // Passthrough copy for CSS
   eleventyConfig.addPassthroughCopy("src/css");
