@@ -76,3 +76,13 @@ Pullquotes emphasize memorable statements or guiding principles. I don't use the
 ### Inline Highlights
 
 When important terms or values appear within a sentence, they may be {% hl %}highlighted{% endhl %} to draw attention. This is used sparingly for {% hl %}critical configuration values{% endhl %} or key terminology.
+
+### Term Lists
+
+Terms or lists of definitions are presented in a list with definitions or descriptions beneath the term:
+
+{% termlist "Key Tools" %}
+SSH: Secure Shell protocol for encrypted remote access
+systemd: Init system and service manager for Linux
+nginx: High-performance web server and reverse proxy
+{% endtermlist %}
