@@ -30,6 +30,142 @@
         });
       }
     });
+
+    // Variable substitution system
+    (function() {
+      var VAR_PATTERN = /\$([A-Z][A-Z0-9_]*)\b/g;
+      var STORAGE_KEY = 'siteVariables';
+
+      function extractVariables() {
+        var variables = {};
+        document.querySelectorAll('pre code, .command-example code, .code-file code').forEach(function(block) {
+          var text = block.textContent;
+          var match;
+          while ((match = VAR_PATTERN.exec(text)) !== null) {
+            variables[match[1]] = true;
+          }
+        });
+        return Object.keys(variables).sort();
+      }
+
+      function loadValues() {
+        try {
+          var saved = localStorage.getItem(STORAGE_KEY);
+          return saved ? JSON.parse(saved) : {};
+        } catch (e) {
+          return {};
+        }
+      }
+
+      function saveValues(values) {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(values));
+        } catch (e) {}
+      }
+
+      function escapeHtml(text) {
+        var div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+      }
+
+      function applySubstitutions(values) {
+        // Process code blocks
+        document.querySelectorAll('pre code, .command-example code, .code-file code').forEach(function(block) {
+          if (!block.dataset.original) {
+            block.dataset.original = block.innerHTML;
+          }
+          var html = block.dataset.original;
+          Object.keys(values).forEach(function(name) {
+            if (values[name]) {
+              var regex = new RegExp('\\$' + name + '\\b', 'g');
+              var escaped = escapeHtml(values[name]);
+              html = html.replace(regex, '<span class="var-replaced">' + escaped + '</span>');
+            }
+          });
+          block.innerHTML = html;
+        });
+
+        // Update copy button data-content
+        document.querySelectorAll('.copy-btn').forEach(function(btn) {
+          if (!btn.dataset.originalContent) {
+            btn.dataset.originalContent = btn.dataset.content;
+          }
+          var content = btn.dataset.originalContent;
+          Object.keys(values).forEach(function(name) {
+            if (values[name]) {
+              var regex = new RegExp('\\$' + name + '\\b', 'g');
+              content = content.replace(regex, values[name]);
+            }
+          });
+          btn.dataset.content = content;
+        });
+      }
+
+      function createPanel(variables) {
+        if (variables.length === 0) return;
+
+        var values = loadValues();
+        var panel = document.createElement('aside');
+        panel.className = 'variables-panel';
+
+        var headerHtml = '<div class="variables-header">' +
+          '<span class="variables-title">Customize Variables</span>' +
+          '<button type="button" class="variables-toggle" aria-expanded="true" aria-label="Toggle variables panel">' +
+          '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>' +
+          '</button>' +
+          '</div>';
+
+        var bodyHtml = '<div class="variables-body">' +
+          '<p class="variables-description">Enter your own values below to customize the commands on this page.</p>' +
+          variables.map(function(v) {
+            var val = values[v] || '';
+            return '<div class="variable-row">' +
+              '<label for="var-' + v + '"><code>$' + v + '</code></label>' +
+              '<input type="text" id="var-' + v + '" data-var="' + v + '" value="' + escapeHtml(val) + '" placeholder="$' + v + '">' +
+              '</div>';
+          }).join('') +
+          '</div>';
+
+        panel.innerHTML = headerHtml + bodyHtml;
+
+        // Insert panel
+        var content = document.querySelector('.content-wrapper') || document.querySelector('main') || document.body.firstElementChild;
+        if (content) {
+          content.insertBefore(panel, content.firstChild);
+        }
+
+        // Toggle handler
+        var toggle = panel.querySelector('.variables-toggle');
+        var body = panel.querySelector('.variables-body');
+        toggle.addEventListener('click', function() {
+          var expanded = panel.classList.toggle('collapsed');
+          toggle.setAttribute('aria-expanded', !expanded);
+        });
+
+        // Input handlers
+        panel.querySelectorAll('input').forEach(function(input) {
+          input.addEventListener('input', function() {
+            var currentValues = loadValues();
+            currentValues[input.dataset.var] = input.value;
+            saveValues(currentValues);
+            applySubstitutions(currentValues);
+          });
+        });
+
+        // Apply initial substitutions
+        applySubstitutions(values);
+      }
+
+      // Initialize when DOM is ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+          createPanel(extractVariables());
+        });
+      } else {
+        createPanel(extractVariables());
+      }
+    })();
   </script>
 </body>
 </html>
