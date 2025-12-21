@@ -12,7 +12,60 @@
     <strong>Work in Progress</strong>
     <span>This content is not ready for distribution</span>
   </div>
+  <header class="site-header">
+    <a href="/" class="site-header-title">{{ site.title }}</a>
+    <button type="button" class="variables-btn" id="openVariablesModal" aria-label="Configure variables">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+        <circle cx="12" cy="12" r="3"/>
+      </svg>
+      <span>Variables</span>
+    </button>
+  </header>
   {% block content %}{% endblock %}
+  <div class="variables-modal-overlay" id="variablesModalOverlay" aria-hidden="true">
+    <div class="variables-modal" role="dialog" aria-labelledby="variablesModalTitle" aria-modal="true">
+      <div class="variables-modal-header">
+        <h2 id="variablesModalTitle">Configure Variables</h2>
+        <button type="button" class="variables-modal-close" id="closeVariablesModal" aria-label="Close modal">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="variables-modal-body">
+        <p class="variables-modal-description">
+          Enter your own values below to customize the commands throughout this guide.
+          Values are saved in your browser and will persist across page visits.
+        </p>
+        <form id="variablesForm" class="variables-form">
+          {% for variable in site.variables %}
+          <div class="variable-field">
+            <label for="var-{{ variable.name }}">
+              <span class="variable-label">{{ variable.label }}</span>
+              <code class="variable-name">${{ variable.name }}</code>
+            </label>
+            <input
+              type="text"
+              id="var-{{ variable.name }}"
+              data-var="{{ variable.name }}"
+              placeholder="{{ variable.placeholder }}"
+              autocomplete="off"
+            >
+            {% if variable.description %}
+            <span class="variable-help">{{ variable.description }}</span>
+            {% endif %}
+          </div>
+          {% endfor %}
+        </form>
+      </div>
+      <div class="variables-modal-footer">
+        <button type="button" class="variables-clear-btn" id="clearVariables">Clear All</button>
+        <button type="button" class="variables-save-btn" id="closeAndSave">Done</button>
+      </div>
+    </div>
+  </div>
   <script>
     document.addEventListener('click', function(e) {
       const btn = e.target.closest('.copy-btn');
@@ -31,23 +84,19 @@
       }
     });
 
-    // Variable substitution system
+    // Variable substitution system - Global
     (function() {
-      var VAR_PATTERN = /\$([A-Z][A-Z0-9_]*)\b/g;
       var STORAGE_KEY = 'siteVariables';
 
-      function extractVariables() {
-        var variables = {};
-        document.querySelectorAll('pre code, .command-example code, .code-file code').forEach(function(block) {
-          var text = block.textContent;
-          var match;
-          while ((match = VAR_PATTERN.exec(text)) !== null) {
-            variables[match[1]] = true;
-          }
-        });
-        return Object.keys(variables).sort();
-      }
+      // DOM references
+      var overlay = document.getElementById('variablesModalOverlay');
+      var openBtn = document.getElementById('openVariablesModal');
+      var closeBtn = document.getElementById('closeVariablesModal');
+      var clearBtn = document.getElementById('clearVariables');
+      var saveBtn = document.getElementById('closeAndSave');
+      var form = document.getElementById('variablesForm');
 
+      // Load values from localStorage
       function loadValues() {
         try {
           var saved = localStorage.getItem(STORAGE_KEY);
@@ -57,18 +106,21 @@
         }
       }
 
+      // Save values to localStorage
       function saveValues(values) {
         try {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(values));
         } catch (e) {}
       }
 
+      // Escape HTML for safe insertion
       function escapeHtml(text) {
         var div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
       }
 
+      // Apply substitutions to all code blocks on the page
       function applySubstitutions(values) {
         // Process code blocks
         document.querySelectorAll('pre code, .command-example code, .code-file code').forEach(function(block) {
@@ -102,68 +154,132 @@
         });
       }
 
-      function createPanel(variables) {
-        if (variables.length === 0) return;
-
+      // Populate form inputs with saved values
+      function populateForm() {
         var values = loadValues();
-        var panel = document.createElement('aside');
-        panel.className = 'variables-panel';
-
-        var headerHtml = '<div class="variables-header">' +
-          '<span class="variables-title">Customize Variables</span>' +
-          '<button type="button" class="variables-toggle" aria-expanded="true" aria-label="Toggle variables panel">' +
-          '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>' +
-          '</button>' +
-          '</div>';
-
-        var bodyHtml = '<div class="variables-body">' +
-          '<p class="variables-description">Enter your own values below to customize the commands on this page.</p>' +
-          variables.map(function(v) {
-            var val = values[v] || '';
-            return '<div class="variable-row">' +
-              '<label for="var-' + v + '"><code>$' + v + '</code></label>' +
-              '<input type="text" id="var-' + v + '" data-var="' + v + '" value="' + escapeHtml(val) + '" placeholder="$' + v + '">' +
-              '</div>';
-          }).join('') +
-          '</div>';
-
-        panel.innerHTML = headerHtml + bodyHtml;
-
-        // Insert panel
-        var content = document.querySelector('.content-wrapper') || document.querySelector('main') || document.body.firstElementChild;
-        if (content) {
-          content.insertBefore(panel, content.firstChild);
-        }
-
-        // Toggle handler
-        var toggle = panel.querySelector('.variables-toggle');
-        var body = panel.querySelector('.variables-body');
-        toggle.addEventListener('click', function() {
-          var expanded = panel.classList.toggle('collapsed');
-          toggle.setAttribute('aria-expanded', !expanded);
-        });
-
-        // Input handlers
-        panel.querySelectorAll('input').forEach(function(input) {
-          input.addEventListener('input', function() {
-            var currentValues = loadValues();
-            currentValues[input.dataset.var] = input.value;
-            saveValues(currentValues);
-            applySubstitutions(currentValues);
+        if (form) {
+          form.querySelectorAll('input[data-var]').forEach(function(input) {
+            var varName = input.dataset.var;
+            input.value = values[varName] || '';
           });
-        });
+        }
+      }
 
-        // Apply initial substitutions
+      // Collect current form values
+      function collectFormValues() {
+        var values = {};
+        if (form) {
+          form.querySelectorAll('input[data-var]').forEach(function(input) {
+            var varName = input.dataset.var;
+            var val = input.value.trim();
+            if (val) {
+              values[varName] = val;
+            }
+          });
+        }
+        return values;
+      }
+
+      // Open modal
+      function openModal() {
+        if (overlay) {
+          populateForm();
+          overlay.setAttribute('aria-hidden', 'false');
+          overlay.classList.add('visible');
+          var firstInput = form ? form.querySelector('input') : null;
+          if (firstInput) firstInput.focus();
+          document.body.style.overflow = 'hidden';
+        }
+      }
+
+      // Close modal
+      function closeModal() {
+        if (overlay) {
+          overlay.setAttribute('aria-hidden', 'true');
+          overlay.classList.remove('visible');
+          document.body.style.overflow = '';
+          if (openBtn) openBtn.focus();
+        }
+      }
+
+      // Save and apply changes
+      function saveAndApply() {
+        var values = collectFormValues();
+        saveValues(values);
         applySubstitutions(values);
       }
 
-      // Initialize when DOM is ready
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', function() {
-          createPanel(extractVariables());
+      // Clear all values
+      function clearAll() {
+        if (form) {
+          form.querySelectorAll('input[data-var]').forEach(function(input) {
+            input.value = '';
+          });
+        }
+        saveValues({});
+        applySubstitutions({});
+      }
+
+      // Event listeners
+      if (openBtn) {
+        openBtn.addEventListener('click', openModal);
+      }
+
+      if (closeBtn) {
+        closeBtn.addEventListener('click', function() {
+          saveAndApply();
+          closeModal();
         });
+      }
+
+      if (saveBtn) {
+        saveBtn.addEventListener('click', function() {
+          saveAndApply();
+          closeModal();
+        });
+      }
+
+      if (clearBtn) {
+        clearBtn.addEventListener('click', clearAll);
+      }
+
+      // Close on overlay click
+      if (overlay) {
+        overlay.addEventListener('click', function(e) {
+          if (e.target === overlay) {
+            saveAndApply();
+            closeModal();
+          }
+        });
+      }
+
+      // Close on Escape key
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && overlay && overlay.classList.contains('visible')) {
+          saveAndApply();
+          closeModal();
+        }
+      });
+
+      // Live update on input change
+      if (form) {
+        form.addEventListener('input', function() {
+          var values = collectFormValues();
+          saveValues(values);
+          applySubstitutions(values);
+        });
+      }
+
+      // Initialize on page load
+      function init() {
+        var values = loadValues();
+        applySubstitutions(values);
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
       } else {
-        createPanel(extractVariables());
+        init();
       }
     })();
   </script>

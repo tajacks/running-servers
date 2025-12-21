@@ -759,36 +759,119 @@ footer a:hover {
 }
 
 /* ==========================================================================
-   VARIABLE SUBSTITUTION PANEL
+   SITE HEADER
    ========================================================================== */
 
-.variables-panel {
-  margin-bottom: 2rem;
-  background: var(--color-surface);
-  border: 1px solid #dee2e6;
-  border-left: 3px solid var(--color-accent);
-}
-
-.variables-header {
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 999;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.75rem 1rem;
-  background: rgba(139, 58, 58, 0.05);
+  padding: 0.5rem 1.5rem;
+  background: var(--color-background);
   border-bottom: 1px solid #dee2e6;
-  cursor: pointer;
 }
 
-.variables-title {
+.site-header-title {
   font-family: var(--font-sans);
-  font-size: 0.8rem;
+  font-size: 0.875rem;
   font-weight: 600;
+  color: var(--color-text-secondary);
+  text-decoration: none;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+}
+
+.site-header-title:hover {
   color: var(--color-accent);
 }
 
-.variables-toggle {
+.variables-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.75rem;
+  background: var(--color-surface);
+  border: 1px solid #dee2e6;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.variables-btn:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.variables-btn svg {
+  flex-shrink: 0;
+}
+
+/* ==========================================================================
+   VARIABLES MODAL
+   ========================================================================== */
+
+.variables-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.variables-modal-overlay.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.variables-modal {
+  width: 100%;
+  max-width: 550px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-background);
+  border: 1px solid #dee2e6;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+  transform: translateY(-10px);
+  transition: transform 0.2s ease;
+}
+
+.variables-modal-overlay.visible .variables-modal {
+  transform: translateY(0);
+}
+
+.variables-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #dee2e6;
+  background: var(--color-surface);
+}
+
+.variables-modal-header h2 {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.variables-modal-close {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -797,60 +880,61 @@ footer a:hover {
   border: none;
   color: var(--color-text-secondary);
   cursor: pointer;
-  transition: transform 0.2s ease;
+  transition: color 0.15s ease;
 }
 
-.variables-toggle:hover {
+.variables-modal-close:hover {
   color: var(--color-accent);
 }
 
-.variables-panel.collapsed .variables-toggle {
-  transform: rotate(-90deg);
+.variables-modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.25rem;
 }
 
-.variables-body {
-  padding: 1rem 1.25rem;
-  display: block;
-}
-
-.variables-panel.collapsed .variables-body {
-  display: none;
-}
-
-.variables-description {
+.variables-modal-description {
   font-family: var(--font-serif);
   font-size: 0.9rem;
   color: var(--color-text-secondary);
-  margin: 0 0 1rem 0;
+  margin: 0 0 1.5rem 0;
   line-height: 1.5;
 }
 
-.variable-row {
+.variables-form {
   display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 0.75rem;
+  flex-direction: column;
+  gap: 1.25rem;
 }
 
-.variable-row:last-child {
-  margin-bottom: 0;
+.variable-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
 }
 
-.variable-row label {
-  flex: 0 0 180px;
-  font-family: var(--font-mono);
+.variable-field label {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+
+.variable-field .variable-label {
+  font-family: var(--font-sans);
   font-size: 0.875rem;
+  font-weight: 500;
   color: var(--color-text-primary);
 }
 
-.variable-row label code {
+.variable-field .variable-name {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--color-accent);
   background: transparent;
   padding: 0;
-  font-size: inherit;
 }
 
-.variable-row input {
-  flex: 1;
+.variable-field input {
   font-family: var(--font-mono);
   font-size: 0.875rem;
   padding: 0.5rem 0.75rem;
@@ -860,14 +944,64 @@ footer a:hover {
   transition: border-color 0.15s ease;
 }
 
-.variable-row input:focus {
+.variable-field input:focus {
   outline: none;
   border-color: var(--color-accent);
 }
 
-.variable-row input::placeholder {
+.variable-field input::placeholder {
   color: var(--color-text-secondary);
   opacity: 0.6;
+}
+
+.variable-field .variable-help {
+  font-family: var(--font-serif);
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  line-height: 1.4;
+}
+
+.variables-modal-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-top: 1px solid #dee2e6;
+  background: var(--color-surface);
+}
+
+.variables-clear-btn {
+  padding: 0.5rem 1rem;
+  background: none;
+  border: 1px solid #ccc;
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.variables-clear-btn:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.variables-save-btn {
+  padding: 0.5rem 1.5rem;
+  background: var(--color-accent);
+  border: 1px solid var(--color-accent);
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.variables-save-btn:hover {
+  background: var(--color-accent-hover, #6b2d2d);
+  border-color: var(--color-accent-hover, #6b2d2d);
 }
 
 /* Highlighted replaced variables in code */
@@ -878,20 +1012,27 @@ footer a:hover {
   font-weight: 500;
 }
 
-/* Responsive adjustments for variables panel */
+/* Responsive adjustments for header and modal */
 @media (max-width: 768px) {
-  .variable-row {
+  .site-header {
+    padding: 0.5rem 1rem;
+  }
+
+  .variables-btn span {
+    display: none;
+  }
+
+  .variables-modal {
+    max-height: 95vh;
+  }
+
+  .variables-modal-body {
+    padding: 1rem;
+  }
+
+  .variable-field label {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
-  }
-
-  .variable-row label {
-    flex: none;
-  }
-
-  .variable-row input {
-    width: 100%;
+    gap: 0.25rem;
   }
 }
 
