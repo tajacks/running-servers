@@ -30,15 +30,13 @@ SSH_PORT=""             # I use 2222
 
 ### System Updates
 
-Some `apt` commands must be confirmed after executing them by pressing `y`. Review command output before accepting the proposed changes.
-
 Update the `apt` cache.
 
 {% command %}
 apt update
 {% endcommand %}
 
-Upgrade the system, removing packages if it is necessary to do so. `full-upgrade` differs from a standard `upgrade` as it removes packages if necessary.
+Upgrade the system, using this upgrade command to remove packages if it is necessary.
 
 {% command %}
 apt full-upgrade
@@ -60,50 +58,46 @@ apt autoremove
 
 Install some core and generally useful software packages onto the server. 
 
-The following is a quick breakdown of what will be installed.
- TODO clean up this phrasing
 {% termlist "Useful Package Summary" %}
 ca-certificates: Common CA certificates
-curl: Tool for transferring data
-gnupg: GNU's tool for secure communication and data storage
-lsb-release: A simple tool to help identify the Linux distribution being used 
-ufw: A host firewall
-fail2ban: A tool to ban hosts that cause multiple authentication errors
-rsyslog: Reliable system and kernel logging daemon
-unattended-upgrades: Automatic installation of security upgrades
-vim: Text editor
+curl: Data transfer tool
+fail2ban: Brute-force attack protection
 git: Version control system
-htop: Process viewer
-tree: Directory browser
-net-tools: Networking toolkit
+gnupg: Encryption and signing toolkit
+htop: Interactive process viewer
+lsb-release: Linux distribution identifier
+net-tools: Network utilities
+rsync: File synchronization tool
+rsyslog: System logging daemon
 sysstat: System performance tools
-rsync: Fast and versatile file-copying tool
+tree: Directory listing tool
+ufw: Host-based firewall
+unattended-upgrades: Automatic security updates
+vim: Text editor
 {% endtermlist %}
 
-Install core and useful packages. Some are likely to already be installed.
-
 {% command %}
-apt install -y \
+apt install \
   ca-certificates \
   curl \
-  gnupg \
-  lsb-release \
-  ufw \
   fail2ban \
-  rsyslog \
-  unattended-upgrades \
-  vim \
   git \
+  gnupg \
   htop \
-  tree \
+  lsb-release \
   net-tools \
+  rsync \
+  rsyslog \
   sysstat \
-  rsync
+  tree \
+  ufw \
+  unattended-upgrades \
+  vim
 {% endcommand %}
 
 ### Create Admin User
 
-The admin user will have privileged access to the server but does not run applications. It is best practice to not directly connect as `root`, however, this user effectively has `root` access due to unrestricted passwordless `sudo` capabilities.
+The admin user will have privileged access to the server but does not run applications. This user will be configured to run `sudo` commands without a password prompt.
 
 Create the user with a home directory.
 
