@@ -1,15 +1,27 @@
 ---
 layout: layouts/chapter.njk
-title: Reading this Book
-description: How to read and understand the layout of this book
+title: Reading this Guide
+description: How to read and understand the layout of this guide
 chapter: introduction
 chapterNumber: 1
 sectionNumber: 2
 ---
 
+## Variables
+
+Floating to the right in the header, there is a button labeled "VARIABLES". This button controls how text is rendered on the screen. The guide makes use of variable substition to make copy and pasting easier. Configuring values in the pop-up menu that appears when clicking the button lets you customize the setup and copy and paste commands with your values already present.
+
+When a variable is substituted inside a code block, it appears {% hl %}highlighted {% endhl %}.
+
+{% command %}
+echo "Hello, $ADMIN_USER"
+{% endcommand %}
+
+To make use of this optional functionality, JavaScript must be enabled.
+
 ## Typography
 
-This book uses consistent text elements to draw attention to notable content and distinguish input from output. They also just look great. Take a moment to familiarize yourself with the following flourishes you'll see throughout the book.
+This guide uses consistent text elements to draw attention to notable content and distinguish input from output. They also just look great. The following are some flourishes used throughout the guide.
 
 ### Shell Commands
 
@@ -29,8 +41,7 @@ File content appears in a box similar to shell commands. The difference is that 
 Hello, world!
 {% endcodefile %}
 
-It will be clear if the file is meant to be replaced entirely, partially edited, or something else.
-
+It will be clear if the file is meant to be replaced entirely, partially edited, or is presented simply for reference.
 ### Callouts
 
 Callouts draw attention to important information. There are three types:

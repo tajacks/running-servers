@@ -11,6 +11,8 @@ This section is intended to bring your server from the initial configuration to 
 
 The commands in this section should be executed as the {% hl %}root user{% endhl %}.
 
+This section prioritizes speed and uses `echo` commands to replace or append to files, as opposed to editing manually.
+
 ### Setup Variables
 
 {% callout "info", "Note" %}
