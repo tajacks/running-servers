@@ -9,7 +9,7 @@ sectionNumber: 2
 
 ## Variables
 
-Floating to the right in the header, there is a button labeled "VARIABLES". This button controls how text is rendered on the screen. The guide makes use of variable substition to make copy and pasting easier. Configuring values in the pop-up menu that appears when clicking the button lets you customize the setup and copy and paste commands with your values already present.
+Floating to the right in the header, there is a button labeled "VARIABLES". This button controls how text is rendered on the screen. The guide makes use of variable substitution to make copy and pasting easier. Configuring values in the pop-up menu that appears when clicking the button lets you customize the setup and copy and paste commands with your values already present.
 
 When a variable is substituted inside a code block, it appears {% hl %}highlighted {% endhl %}.
 
@@ -42,6 +42,7 @@ Hello, world!
 {% endcodefile %}
 
 It will be clear if the file is meant to be replaced entirely, partially edited, or is presented simply for reference.
+
 ### Callouts
 
 Callouts draw attention to important information. There are three types:
@@ -90,7 +91,7 @@ When important terms or values appear within a sentence, they may be {% hl %}hig
 
 ### Term Lists
 
-Terms or lists of definitions are presented in a list with definitions or descriptions beneath the term:
+Terms are presented with their definitions or descriptions beneath:
 
 {% termlist "Key Tools" %}
 SSH: Secure Shell protocol for encrypted remote access
