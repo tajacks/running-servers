@@ -1,6 +1,6 @@
 {
   "title": "Running Servers",
-  "subtitle": "A comprehensive guide to setting up and running hobby servers",
+  "subtitle": "A personal guide to running hobby servers",
   "url": "https://running-servers.thomasjack.ca",
   "repository": "https://github.com/tajacks/running-servers",
   "author": {
@@ -10,5 +10,43 @@
     "github": "https://github.com/tajacks"
   },
   "license": "CC BY-NC-SA 4.0",
-  "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+  "variables": [
+    {
+      "name": "ADMIN_USER",
+      "label": "Admin Username",
+      "description": "The privileged admin user account name",
+      "placeholder": "e.g., admin"
+    },
+    {
+      "name": "ADMIN_USER_COMMENT",
+      "label": "Admin User Full Name",
+      "description": "Full name for the admin user (used in useradd comment)",
+      "placeholder": "e.g., Admin"
+    },
+    {
+      "name": "ADMIN_SSH_KEY",
+      "label": "Admin SSH Public Key",
+      "description": "Your SSH public key for authentication",
+      "placeholder": "ssh-ed25519 AAAA..."
+    },
+    {
+      "name": "APP_USER",
+      "label": "Application Username",
+      "description": "Non-privileged user for running containers",
+      "placeholder": "e.g., app"
+    },
+    {
+      "name": "SSH_PORT",
+      "label": "SSH Port",
+      "description": "Custom SSH port number (non-standard for security)",
+      "placeholder": "e.g., 2222"
+    },
+    {
+      "name": "SERVER_IP",
+      "label": "Server IP Address",
+      "description": "Your server's public IP address",
+      "placeholder": "e.g., 1.2.3.4"
+    }
+  ]
 }
