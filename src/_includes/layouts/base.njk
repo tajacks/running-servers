@@ -138,7 +138,6 @@
           block.innerHTML = html;
         });
 
-        // Update copy button data-content
         document.querySelectorAll('.copy-btn').forEach(function(btn) {
           if (!btn.dataset.originalContent) {
             btn.dataset.originalContent = btn.dataset.content;
@@ -165,7 +164,6 @@
         }
       }
 
-      // Collect current form values
       function collectFormValues() {
         var values = {};
         if (form) {
@@ -180,7 +178,6 @@
         return values;
       }
 
-      // Open modal
       function openModal() {
         if (overlay) {
           populateForm();
@@ -192,7 +189,6 @@
         }
       }
 
-      // Close modal
       function closeModal() {
         if (overlay) {
           overlay.setAttribute('aria-hidden', 'true');
@@ -202,14 +198,12 @@
         }
       }
 
-      // Save and apply changes
       function saveAndApply() {
         var values = collectFormValues();
         saveValues(values);
         applySubstitutions(values);
       }
 
-      // Clear all values
       function clearAll() {
         if (form) {
           form.querySelectorAll('input[data-var]').forEach(function(input) {
