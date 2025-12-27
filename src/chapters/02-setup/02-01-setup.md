@@ -556,7 +556,7 @@ After the server comes back online, reconnect using the admin user on the new SS
 in your host. Replace them with the correct values.
 
 {% command %}
-ssh -p $SSH_PORT $ADMIN_USER@1.2.3.4
+ssh -p $SSH_PORT $ADMIN_USER@$SERVER_IP
 {% endcommand %}
 
 
